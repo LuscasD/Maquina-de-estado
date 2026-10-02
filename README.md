@@ -28,56 +28,55 @@ Diagramas: [`docs/diagramas/minerador.png`](docs/diagramas/minerador.png) e
 
 ## Como compilar e rodar
 
-Requer JDK 17+ (testado com JDK 21).
-
-**Linux / macOS**
+Requer JDK 17+ (testado com JDK 21). Todos os arquivos estão em `src/`.
 
 ```bash
-javac -encoding UTF-8 -d out $(find src -name "*.java")
-java -cp out Main
+javac -encoding UTF-8 -d out src/*.java
+java -cp out StateMachine
 ```
 
-**Windows (PowerShell)**
-
-```powershell
-javac -encoding UTF-8 -d out (Get-ChildItem -Recurse src -Filter *.java).FullName
-java -cp out Main
-```
-
-Parâmetros opcionais: `java -cp out Main [ticks] [pausaMs]`
-(padrão: 30 ticks, 300 ms entre ticks). Ex.: `java -cp out Main 40 0` roda 40 ticks sem pausa.
+Parâmetros opcionais: `java -cp out StateMachine [ticks] [pausaMs]`
+(padrão: 30 ticks, 1000 ms entre ticks). `ticks = 0` roda para sempre, como no exemplo da aula.
+Ex.: `java -cp out StateMachine 40 0` roda 40 ticks sem pausa.
 
 ## Como observar as transições nos logs
 
-Cada linha mostra o tick e o agente:
+Cada tick começa com `===== TICK n =====`, e cada linha mostra o agente:
 
 ```
-[Tick 14] Minerador  | Para de minerar e guarda a picareta no cinto.        <- leave()
-[Tick 14] Minerador  | >>> TRANSICAO: Minerando -> AguardandoPicareta       <- troca de estado
-[Tick 14] Minerador  | A picareta quebrou! Leva a picareta ao Ferreiro.     <- enter()
-[Tick 14] Minerador  | *** MENSAGEM Minerador -> Ferreiro: PICARETA_QUEBRADA
-[Tick 14] Ferreiro   | >>> TRANSICAO: Ocioso -> ConsertandoPicareta
+[MINERADOR] Para de minerar e guarda a picareta no cinto.      <- leave()
+[MINERADOR] >>> TRANSICAO: Minerando -> AguardandoPicareta     <- troca de estado
+[MINERADOR] A picareta quebrou! Leva a picareta ao Ferreiro.   <- enter()
+[MINERADOR] *** MENSAGEM para o Ferreiro: PICARETA_QUEBRADA
+[FERREIRO]  >>> TRANSICAO: Ocioso -> ConsertandoPicareta
 ```
 
-- `>>> TRANSICAO` marca toda troca de estado (filtre com `java -cp out Main | grep TRANSICAO`).
+- `>>> TRANSICAO` marca toda troca de estado (filtre com `java -cp out StateMachine 30 0 | grep TRANSICAO`;
+  no Windows, `| findstr TRANSICAO`).
 - `*** MENSAGEM` marca a comunicação entre os agentes.
 - A linha antes de `>>> TRANSICAO` vem do `leave()` do estado antigo; a linha depois vem do `enter()` do novo.
+- As linhas com `|` são o `printStats()` de cada agente, com as variáveis atuais.
 
 ## Estrutura
 
+Segue a FSM genérica vista em aula (exemplo Juca/Bob):
+
 ```
 src/
-├── Main.java                       # cria agentes e inicia o loop
-├── core/
-│   ├── Estado.java                 # interface do padrão State (enter/execute/leave)
-│   ├── MaquinaDeEstados.java       # guarda o estado atual e faz as trocas
-│   ├── Agente.java                 # classe base dos agentes
-│   ├── GerenciadorDeAgentes.java   # loop principal + entrega de mensagens
-│   ├── Mensagem.java               # tipos de mensagem
-│   └── Log.java                    # saída padronizada no console
-├── minerador/                      # Agente A e seus 4 estados
-└── ferreiro/                       # Agente B e seus 2 estados
+├── State.java                 # interface State<C>: getCharacter, enter, execute, leave
+├── AbstractState.java         # guarda o personagem; enter/leave vazios por padrão
+├── Character.java             # interface dos agentes: update, setState, printStats, receiveMessage
+├── StateMachine.java          # lista de characters + loop principal (main)
+├── Mensagem.java              # PICARETA_QUEBRADA / PICARETA_CONSERTADA
+├── Minerador.java             # Agente A
+├── Minerando.java             # \
+├── EntregandoMinerio.java     #  | estados do Minerador
+├── Descansando.java           #  |
+├── AguardandoPicareta.java    # /
+├── Ferreiro.java              # Agente B
+├── Ocioso.java                # \ estados do Ferreiro
+└── ConsertandoPicareta.java   # /
 docs/
-├── diagramas/                      # .dot, .png e .svg dos diagramas
+├── diagramas/                 # .dot, .png e .svg dos diagramas
 └── Trabalho_Maquina_de_Estados.pdf
 ```

@@ -2,7 +2,7 @@ package ferreiro;
 
 import core.Estado;
 
-/** Conserta a picareta durante TICKS_PARA_CONSERTAR ticks e avisa o Minerador ao terminar. */
+/ Conserta a picareta durante TICKS_PARA_CONSERTAR ticks e avisa o Minerador ao terminar. */
 public final class ConsertandoPicareta implements Estado<Ferreiro> {
 
     private static final ConsertandoPicareta INSTANCIA = new ConsertandoPicareta();
