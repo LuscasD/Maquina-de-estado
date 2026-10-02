@@ -1,0 +1,15 @@
+digraph Ferreiro {
+    rankdir=LR;
+    graph [fontname="Helvetica", bgcolor="white", pad="0.3", nodesep="0.8", ranksep="1.6"];
+    node  [fontname="Helvetica", shape=box, style="rounded,filled", fillcolor="#FDE7EE", color="#C2185B", penwidth=1.6, fontsize=13, margin="0.25,0.12"];
+    edge  [fontname="Helvetica", fontsize=10.5, color="#444444", arrowsize=0.8];
+
+    inicio [shape=circle, label="", width=0.22, style=filled, fillcolor="#222222", color="#222222"];
+
+    Ocioso              [label="Ocioso\n(estado inicial)"];
+    ConsertandoPicareta [label="ConsertandoPicareta", fillcolor="#E3F2FD", color="#1565C0"];
+
+    inicio -> Ocioso;
+    Ocioso -> ConsertandoPicareta [label="recebeu PICARETA_QUEBRADA\n(pedidoDeConserto == true)", color="#1565C0", fontcolor="#1565C0"];
+    ConsertandoPicareta -> Ocioso [label="ticksConsertando >= 3\n/ envia PICARETA_CONSERTADA", color="#1565C0", fontcolor="#1565C0"];
+}

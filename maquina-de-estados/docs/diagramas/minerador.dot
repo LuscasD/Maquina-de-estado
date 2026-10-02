@@ -1,0 +1,26 @@
+digraph Minerador {
+    rankdir=LR;
+    graph [fontname="Helvetica", bgcolor="white", pad="0.3", nodesep="0.6", ranksep="1.1"];
+    node  [fontname="Helvetica", shape=box, style="rounded,filled", fillcolor="#FDE7EE", color="#C2185B", penwidth=1.6, fontsize=13, margin="0.25,0.12"];
+    edge  [fontname="Helvetica", fontsize=10.5, color="#444444", arrowsize=0.8];
+
+    inicio [shape=circle, label="", width=0.22, style=filled, fillcolor="#222222", color="#222222"];
+
+    Minerando          [label="Minerando\n(estado inicial)"];
+    EntregandoMinerio  [label="EntregandoMinerio"];
+    Descansando        [label="Descansando"];
+    AguardandoPicareta [label="AguardandoPicareta", fillcolor="#E3F2FD", color="#1565C0"];
+
+    inicio -> Minerando;
+
+    Minerando -> AguardandoPicareta [label="[1] durabilidadePicareta == 0\n/ envia PICARETA_QUEBRADA", color="#1565C0", fontcolor="#1565C0"];
+    Minerando -> EntregandoMinerio  [label="[2] minerioNaMochila >= 5"];
+    Minerando -> Descansando        [label="[3] energia <= 30"];
+
+    EntregandoMinerio -> Minerando  [label="ticksNoCaminho >= 2\ne energia > 30"];
+    EntregandoMinerio -> Descansando [label="ticksNoCaminho >= 2\ne energia <= 30"];
+
+    Descansando -> Minerando [label="energia >= 100"];
+
+    AguardandoPicareta -> Minerando [label="recebeu PICARETA_CONSERTADA\n(picaretaConsertada == true)", color="#1565C0", fontcolor="#1565C0"];
+}
